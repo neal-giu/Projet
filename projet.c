@@ -108,6 +108,10 @@ void etudiants(Etudiant tab[], int i) {
 	}
 }
 
+void justification() {
+	
+}
+
 int main() {
 	char requete[100];
 	Etudiant tab[NB_ETU_MAX];
