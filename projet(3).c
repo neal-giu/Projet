@@ -14,7 +14,7 @@ typedef struct {
 	int id, jour;
 	char demi_jour[3];
 	char motif[NB_JUSTIFICATIF_MAX];
-	char etat_motif; //0 c'est non-justifiée, 1 c'est en cours de traitement, 2 justifiée
+	char etat_motif; //0 c'est non-justifiÃ©e, 1 c'est en cours de traitement, 2 justifiÃ©e
 
 
 }Absence;
@@ -184,7 +184,7 @@ void justification(Absence tab2[], int nb_abs, int nb_jus) {
 	printf("Justificatif enregistre, etat: %d\n", tab2[id].etat_motif);
 }
 
-//C4---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//C5---------------------------------------------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 void validations(Absence tab2[], int nb_abs, Etudiant tab[], int nb_etu, int nb_jus) {
