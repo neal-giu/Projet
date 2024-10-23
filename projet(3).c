@@ -14,7 +14,7 @@ typedef struct {
 	int id, jour;
 	char demi_jour[3];
 	char motif[NB_JUSTIFICATIF_MAX];
-	int etat_motif; //0 c'est non-justifiée, 1 c'est en cours de traitement, 2 justifiée
+	int etat_motif; //0 c'est non-justifiée, 1 c'est en cours de traitement, 2 justifiée, 3 justification non valable
 
 
 }Absence;
@@ -120,6 +120,11 @@ int cmp_etu(const void* etu1, const void* etu2) {
 }
 
 void etudiants(const Etudiant etu[], int nb_etu, const Absence abs[], int nb_abs) {
+
+	Etudiant copyetu[NB_ETU_MAX]; //Faire une copie du tableau
+	for (int k = 0;k < nb_etu;k++) {
+		copyetu[k] = etu[k];
+	}
 	int jour;
 	scanf("%d", &jour);
 	if (nb_etu == 0) {
@@ -130,14 +135,14 @@ void etudiants(const Etudiant etu[], int nb_etu, const Absence abs[], int nb_abs
 		printf("Date incorrecte\n");
 		return;
 	}
-	qsort(etu, nb_etu, sizeof(etu[0]), cmp_etu);
+	qsort(copyetu, nb_etu, sizeof(copyetu[0]), cmp_etu);
 	for (int i = 0; i < nb_etu; ++i) {
 		unsigned int compt_abs = 0;
 		for (int j = 0; j < nb_abs; j++) {
-			if (abs[j].id == etu[i].identifiant && abs[j].jour <= jour)
+			if (abs[j].id == copyetu[i].identifiant && abs[j].jour <= jour)
 				compt_abs++;
 		}
-		printf("(%u) %s %u %u\n", etu[i].identifiant, etu[i].prenom, etu[i].groupe, compt_abs);
+		printf("(%u) %s %u %u\n", copyetu[i].identifiant, copyetu[i].prenom, copyetu[i].groupe, compt_abs);
 	}
 }
 
@@ -154,8 +159,8 @@ void saisieLigne(char* ligne, int max) {
 }
 
 
-void justification(Absence tab2[], int nb_abs, int nb_jus) {
-	int id, jour, compteur = 0;
+void justification(Absence tab2[], int nb_abs, int* nb_jus) {
+	int id, jour;
 	char motif[NB_JUSTIFICATIF_MAX];
 
 	scanf("%d", &id);
@@ -179,11 +184,11 @@ void justification(Absence tab2[], int nb_abs, int nb_jus) {
 
 	if ((tab2[id].jour + 3) >= jour) {
 		tab2[id].etat_motif = 1;
-		++nb_jus;
+		(*nb_jus)++;
 	}
 	saisieLigne(motif, NB_JUSTIFICATIF_MAX);
 	strcpy(tab2[id].motif, motif);
-	printf("Justificatif enregistre\n", tab2[id].etat_motif);
+	printf("Justificatif enregistre nb jus : %d\n", (*nb_jus));
 }
 
 //C5---------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -196,7 +201,7 @@ void validations(Absence tab2[], int nb_abs, Etudiant tab[], int nb_etu, int nb_
 	}
 	for (int i = 0; i < nb_abs; ++i) {
 		if (tab2[i].etat_motif == 1) {
-			printf("[%d] (%d) %s %d %d/%s (%s)\n", i, tab2[i].id,  tab[tab2[i].id].prenom, tab[tab2[i].id].groupe, tab2[i].jour, tab2[i].demi_jour, tab2[i].motif);
+			printf("[%d] (%d) %s %d %d/%s (%s)\n", i+1, tab2[i].id, tab[tab2[i].id-1].prenom, tab[tab2[i].id-1].groupe, tab2[i].jour, tab2[i].demi_jour, tab2[i].motif);
 		}
 	}
 }
@@ -204,6 +209,36 @@ void validations(Absence tab2[], int nb_abs, Etudiant tab[], int nb_etu, int nb_
 //C6---------------------------------------------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+void validation(Absence tab2[], int nb_abs) {
+	unsigned int id;
+	char verdict[3];
+	scanf("%u", &id);
+	--id;
+	if (tab2[id].etat_motif == 0 || id > nb_abs) {
+		printf("Identifiant incorrect\n");
+		return;
+	}
+	if (tab2[id].etat_motif == 2 || tab2[id].etat_motif == 3 ) {
+		printf("Validation deja connue\n");
+		return;
+	}
+	scanf("%s", verdict);
+	if (strcmp(verdict, "ok") == 0) {
+		tab2[id].etat_motif = 2;
+		printf("Validation enregistree\n");
+		return;
+
+	}
+	else if (strcmp(verdict, "ko") == 0) {
+		tab2[id].etat_motif = 3;
+		printf("Validation enregistree\n");
+		return;
+	}
+	else {
+		printf("Code incorrect\n");
+		return;
+	}
+}
 
 //Int Main---------------------------------------------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -236,11 +271,13 @@ int main() {
 			etudiants(tab, nb_etu, tab2, nb_abs);
 		}
 		else if (strcmp(requete, "justificatif") == 0) {
-			justification(tab2, nb_abs, nb_jus);
+			justification(tab2, nb_abs, &nb_jus);
 		}
 		else if (strcmp(requete, "validations") == 0) {
 			validations(tab2, nb_abs, tab, nb_etu, nb_jus);
 		}
-
+		else if (strcmp(requete, "validation") == 0) {
+			validation(tab2, nb_abs);
+		}
 	}
 }
