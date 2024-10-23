@@ -14,11 +14,13 @@ typedef struct {
 	int id, jour;
 	char demi_jour[3];
 	char motif[NB_JUSTIFICATIF_MAX];
-	char etat_motif; //0 c'est non-justifiée, 1 c'est en cours de traitement, 2 justifiée
+	int etat_motif; //0 c'est non-justifiée, 1 c'est en cours de traitement, 2 justifiée
 
 
 }Absence;
 
+//C0---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 void sortie(char requete[]) {
 	if (strcmp(requete, "exit") == 0) {
@@ -33,7 +35,7 @@ int inscription(Etudiant tab[NB_ETU_MAX], int i) {
 	char prenom[LONG_PRENOM_MAX];
 	int groupe;
 
-	scanf("%s", prenom);
+	scanf("%s", prenom); //limite taille saisie
 
 	if (strlen(prenom) < LONG_PRENOM_MAX) {
 		strcpy(tab[i].prenom, prenom);
@@ -45,9 +47,9 @@ int inscription(Etudiant tab[NB_ETU_MAX], int i) {
 			}
 		}
 		tab[i].groupe = groupe;
-		tab[i].identifiant = i;
+		tab[i].identifiant = i + 1;
 		tab[i].absence = 0;
-		printf("Inscription enregistree (%d)\n", tab[i].identifiant + 1);
+		printf("Inscription enregistree (%d)\n", tab[i].identifiant);
 		return 1;
 	}
 	else {
@@ -73,13 +75,13 @@ void absence(Etudiant tab[NB_ETU_MAX], Absence tab2[NB_ABS_MAX], int* nb_absence
 			if ((strcmp(demi_jour, "am") == 0) || (strcmp(demi_jour, "pm") == 0)) {
 
 				for (int j = 0; j < *nb_absence; ++j) {
-					if (jour == tab2[j].jour && strcmp(demi_jour, tab2[j].demi_jour) == 0 && tab2[j].id == (id - 1)) {
+					if (jour == tab2[j].jour && strcmp(demi_jour, tab2[j].demi_jour) == 0 && tab2[j].id == id) {
 						printf("Absence deja connue\n");
 						return;
 					}
 				}
 
-				tab2[*nb_absence].id = id - 1;
+				tab2[*nb_absence].id = id;
 				tab2[*nb_absence].jour = jour;
 				strcpy(tab2[*nb_absence].demi_jour, demi_jour);
 				tab2[*nb_absence].etat_motif = 0;
@@ -181,7 +183,7 @@ void justification(Absence tab2[], int nb_abs, int nb_jus) {
 	}
 	saisieLigne(motif, NB_JUSTIFICATIF_MAX);
 	strcpy(tab2[id].motif, motif);
-	printf("Justificatif enregistre, etat: %d\n", tab2[id].etat_motif);
+	printf("Justificatif enregistre\n", tab2[id].etat_motif);
 }
 
 //C5---------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -189,15 +191,19 @@ void justification(Absence tab2[], int nb_abs, int nb_jus) {
 
 void validations(Absence tab2[], int nb_abs, Etudiant tab[], int nb_etu, int nb_jus) {
 	if (nb_jus == 0) {
-		printf("Aucune validation");
+		printf("Aucune validation en attente\n");
 		return;
 	}
 	for (int i = 0; i < nb_abs; ++i) {
 		if (tab2[i].etat_motif == 1) {
-			printf("[%d] (%d) %s %d %d/%s (%s)", i, tab2[i].id,  tab[tab2[i].id].prenom, tab[tab2[i].id].groupe, tab2[i].jour, tab2[i].demi_jour, tab2[i].motif);
+			printf("[%d] (%d) %s %d %d/%s (%s)\n", i, tab2[i].id,  tab[tab2[i].id].prenom, tab[tab2[i].id].groupe, tab2[i].jour, tab2[i].demi_jour, tab2[i].motif);
 		}
 	}
 }
+
+//C6---------------------------------------------------------------------------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
 //Int Main---------------------------------------------------------------------------------------------------------------------------------------------------------
 //-----------------------------------------------------------------------------------------------------------------------------------------------------------------
